@@ -4,7 +4,7 @@ import { storage } from '@/utils/storage';
 import { ROUTES } from '@/router/routes';
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://university-api-production.up.railway.app',
   timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -31,35 +31,15 @@ axiosInstance.interceptors.response.use(
   (response) => response.data,
 
   async (error) => {
-    const originalRequest = error.config;
-
-    // 401 — try to refresh token once, then logout
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      const refreshToken = storage.getRefreshToken();
-
-      if (refreshToken) {
-        try {
-          const { data } = await axios.post(
-            `${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/refresh`,
-            { refresh_token: refreshToken }
-          );
-          const { useAuthStore } = await import('@/store/authStore');
-          useAuthStore.getState().setTokens(data.access_token, data.refresh_token);
-          originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
-          return axiosInstance(originalRequest);
-        } catch {
-          // Refresh failed — force logout
-          const { useAuthStore } = await import('@/store/authStore');
-          useAuthStore.getState().logout();
-          window.location.href = ROUTES.LOGIN;
-          return Promise.reject(error);
-        }
-      } else {
-        const { useAuthStore } = await import('@/store/authStore');
-        useAuthStore.getState().logout();
-        window.location.href = ROUTES.LOGIN;
-      }
+    // 401 — token expired or invalid, force logout
+    // NOTE: Sanctum does not have refresh tokens. When the token expires (24h),
+    // the user must log in again. If refresh tokens are added in the future,
+    // implement them here.
+    if (error.response?.status === 401) {
+      const { useAuthStore } = await import('@/store/authStore');
+      useAuthStore.getState().logout();
+      window.location.href = ROUTES.LOGIN;
+      return Promise.reject(error);
     }
 
     // 403 — not authorized for this action

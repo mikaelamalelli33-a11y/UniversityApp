@@ -1,6 +1,27 @@
 # Frontend — Dokumentacion
 
 > **Stack:** React 19 · Vite · Ant Design 5 · React Router v6 · Zustand · Axios
+> **API (production):** `https://university-api-production.up.railway.app`
+> **API docs (live):** `https://university-api-production.up.railway.app/docs`
+
+---
+
+## ⚠️ Para se të shkruash ndonjë thirrje API — lexo dokumentacionin
+
+Backend-i ka **dokumentacion interaktiv live** në:
+
+```
+https://university-api-production.up.railway.app/docs
+```
+
+Çdo endpoint është i dokumentuar me:
+- Trupin e kërkesës (request body) — fushat e detyrueshme dhe format e tyre
+- Formatin e saktë të përgjigjes — emrat e fushave, tipet, nestimi
+- Butonin **"Try it out"** — ngjit token-in tënd Sanctum një herë në krye, pastaj ekzekuto çdo endpoint dhe shiko përgjigjen reale
+
+**Nuk ke nevojë të pyesësh backend-in çfarë kthen një endpoint.** Përgjigja është në docs. Nëse diçka mungon ose është gabim, njofto Kriston.
+
+`.env` është konfiguruar të tregojë nga API-ja e prodhimit — `VITE_API_BASE_URL=https://university-api-production.up.railway.app`. Nuk ke nevojë të nisësh backend-in lokalisht për të zhvilluar.
 
 ---
 
@@ -14,13 +35,12 @@ cd UniversityApp
 # 2. Instalo dependencies
 npm install
 
-# 3. Krijo skedarin e variablave të mjedisit
-cp .env.example .env.local
-
-# 4. Nise serverin e zhvillimit
+# 3. Nise serverin e zhvillimit
 npm run dev
-# Hapet automatikisht në http://localhost:3000
+# Hapet automatikisht në http://localhost:5173
 ```
+
+> Nuk nevojitet skedar `.env` për të filluar. Aplikacioni lidhet automatikisht me API-në e prodhimit si parazgjedhje. Krijo `.env` vetëm nëse dëshiron të tregosh te një backend lokal (`VITE_API_BASE_URL=http://localhost:8000`).
 
 ---
 
@@ -125,11 +145,17 @@ src/
 Autentikimi menaxhohet me **Zustand** (`authStore`) dhe token-at ruhen në **localStorage**.
 
 ```
-Hapi 1 — Kyçja:
+Hapi 1 — Kyçja (pedagog / admin):
   authStore.login({ email, password })
   → dërgon POST /api/v1/auth/login
-  → ruan access_token dhe refresh_token në localStorage
+  → ruan token-in në localStorage
   → vendos user dhe isAuthenticated: true në store
+
+Hapi 1b — Kyçja (student):
+  → shflet te GET /api/v1/auth/google/redirect
+  → Google ridrejton te callback-u
+  → backend kthen { user, token }
+  (shih docs/today-plan.md — F3 për detaje të implementimit)
 
 Hapi 2 — Çdo kërkesë API:
   axiosInstance (interceptor)
@@ -138,12 +164,13 @@ Hapi 2 — Çdo kërkesë API:
 
 Hapi 3 — Token skadon (401):
   axiosInstance (interceptor)
-  → provon të rifreskojë token-in automatikisht
-  → nëse dështon: logout() + ridrejton te /login
+  → logout() automatik + ridrejton te /login
+  → Sanctum nuk ka refresh token — token-i zgjat 24h, pas kësaj ri-kyçja është e detyrueshme
 
 Hapi 4 — Dalja:
   authStore.logout()
-  → fshin token-at nga localStorage
+  → dërgon POST /api/v1/auth/logout (revokon token-in në server)
+  → fshin token-in nga localStorage
   → pastron gjendjen e store-it
 ```
 
