@@ -1,8 +1,10 @@
-import { Button, Space, Card, Typography } from 'antd';
+import { useState } from 'react';
+import { Button, Space, Card, Typography, Alert } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { ROLE_DEFAULT_ROUTES } from '@/router/routes';
 import { ROLES } from '@/utils/constants';
+import axiosInstance from '@/services/axiosInstance';
 
 const { Title, Text } = Typography;
 
@@ -16,6 +18,9 @@ const DEV_USERS = {
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const [apiStatus, setApiStatus] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   const simulateLogin = (role) => {
     useAuthStore.setState({
       user: DEV_USERS[role],
@@ -23,6 +28,22 @@ export default function LoginPage() {
       isAuthenticated: true,
     });
     navigate(ROLE_DEFAULT_ROUTES[role]);
+  };
+
+  const testApi = async () => {
+    setLoading(true);
+    setApiStatus(null);
+    try {
+      const res = await axiosInstance.get('/api/v1/faculties');
+      setApiStatus({
+        type: 'success',
+        message: `✅ API works — ${res.data.length} faculties returned`,
+      });
+    } catch (err) {
+      setApiStatus({ type: 'error', message: `❌ ${err.response?.data?.message || err.message}` });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -48,6 +69,10 @@ export default function LoginPage() {
           <Button block danger onClick={() => simulateLogin(ROLES.ADMIN)}>
             Hyr si Admin
           </Button>
+          <Button block type="dashed" loading={loading} onClick={testApi}>
+            Test API connection
+          </Button>
+          {apiStatus && <Alert message={apiStatus.message} type={apiStatus.type} showIcon />}
         </Space>
       </Card>
     </div>
