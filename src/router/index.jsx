@@ -10,26 +10,13 @@ import { ROUTES } from './routes';
 import { MENU_CONFIG } from './menuConfig';
 import { ROLES } from '@/utils/constants';
 
-// ─── Lazy imports ─────────────────────────────────────────────────────────────
-// Each page is loaded only when the user first navigates to it.
-// Vite automatically splits each lazy() call into its own JS chunk.
-//
-// HOW TO ADD A NEW PAGE:
-//   1. Add the path to router/routes.js
-//   2. Add the menu entry to router/menuConfig.jsx  (if it needs a sidebar item)
-//   3. Create the page component in pages/<role>/YourPage.jsx
-//   4. Add a lazy() import below in the correct role section
-//   5. Register the route in the router array below, under the correct portal
-//
-// PATTERN:
-//   const MyPage = lazy(() => import('@/pages/<role>/MyPage'));
-
 // Auth
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 
 // Student pages
 const BallinaStudentPage = lazy(() => import('@/pages/student/BallinaPage'));
 const NotatPage = lazy(() => import('@/pages/student/NotatPage'));
+const FaturePage = lazy(() => import('@/pages/student/FaturePage'));
 const OrariStudentPage = lazy(() => import('@/pages/student/OrariPage'));
 
 // Pedagog pages
@@ -43,19 +30,12 @@ const StudentatPage = lazy(() => import('@/pages/admin/StudentatPage'));
 const PedagogatPage = lazy(() => import('@/pages/admin/PedagogatPage'));
 const LendetPage = lazy(() => import('@/pages/admin/LendetPage'));
 const RaportetPage = lazy(() => import('@/pages/admin/RaportetPage'));
-
-// ─── Router ───────────────────────────────────────────────────────────────────
-// Parent paths use ROUTES constants (full path, e.g. '/student').
-// Child paths are relative segments only (e.g. 'notat', not '/student/notat').
-// React Router joins them automatically — do NOT use ROUTES constants for children.
+const NjoftimetPage = lazy(() => import('@/pages/admin/NjoftimetPage'));
 
 const router = createBrowserRouter([
-  // TODO: when public pages are built, replace this redirect with PublicLayout at ROUTES.HOME
   { path: ROUTES.HOME, element: <Navigate to={ROUTES.STUDENT.ROOT} replace /> },
   { path: ROUTES.LOGIN, element: <LoginPage /> },
 
-  // Public section — Lajme, Akademia, UAMD info (no auth required)
-  // Add public page children here as they are built
   {
     path: ROUTES.PUBLIC.ROOT,
     element: <PublicLayout />,
@@ -71,9 +51,10 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      { index: true, element: <BallinaStudentPage /> }, // renders at /student
-      { path: 'notat', element: <NotatPage /> }, // renders at /student/notat
-      { path: 'orari', element: <OrariStudentPage /> }, // renders at /student/orari
+      { index: true, element: <BallinaStudentPage /> },
+      { path: 'notat', element: <NotatPage /> },
+      { path: 'fatura', element: <FaturePage /> },
+      { path: 'orari', element: <OrariStudentPage /> },
     ],
   },
 
@@ -106,15 +87,12 @@ const router = createBrowserRouter([
       { path: 'pedagogat', element: <PedagogatPage /> },
       { path: 'lendet', element: <LendetPage /> },
       { path: 'raportet', element: <RaportetPage /> },
+      { path: 'njoftimet', element: <NjoftimetPage /> },
     ],
   },
 
   { path: '*', element: <NotFound /> },
 ]);
-
-// ─── App Router ───────────────────────────────────────────────────────────────
-// Suspense shows a loading spinner while a lazy page chunk is being downloaded.
-// This is the only Suspense boundary needed — it covers the entire app.
 
 export default function AppRouter() {
   return (

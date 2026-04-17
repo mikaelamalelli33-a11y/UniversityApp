@@ -4,8 +4,6 @@ export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
 
-  // Public section — Lajme, Akademia, UAMD info pages (from organograma)
-  // HOME will eventually render PublicLayout instead of redirecting to /student
   PUBLIC: {
     ROOT: '/public',
     LAJME: '/public/lajme',
@@ -15,6 +13,7 @@ export const ROUTES = {
   STUDENT: {
     ROOT: '/student',
     NOTAT: '/student/notat',
+    FATURA: '/student/fatura',
     ORARI: '/student/orari',
   },
 
@@ -30,6 +29,7 @@ export const ROUTES = {
     PEDAGOGAT: '/admin/pedagogat',
     LENDET: '/admin/lendet',
     RAPORTET: '/admin/raportet',
+    NJOFTIMET: '/admin/njoftimet',
   },
 };
 

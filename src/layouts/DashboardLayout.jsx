@@ -6,6 +6,7 @@ import { useUiStore } from '@/store/uiStore';
 import { useAuth } from '@/hooks/useAuth';
 import { ROUTES } from '@/router/routes';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
+import NotificationBell from '@/components/common/NotificationBell';
 
 const { Sider, Header, Content } = Layout;
 const { Text } = Typography;
@@ -80,6 +81,7 @@ export default function DashboardLayout({ menuItems }) {
           </Text>
 
           <Space>
+            <NotificationBell />
             <Avatar icon={<UserOutlined />} />
             <Text>
               {user?.emri} {user?.mbiemri}
