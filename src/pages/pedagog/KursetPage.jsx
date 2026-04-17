@@ -54,7 +54,7 @@ function SectionGradesDrawer({ section, onClose }) {
 }
 
 export default function KursetPage() {
-  usePageTitle('Kurset');
+  usePageTitle('Raportet');
   const [selectedSection, setSelectedSection] = useState(null);
 
   const { data, loading } = useApi(() => pedagogService.getSections(), []);

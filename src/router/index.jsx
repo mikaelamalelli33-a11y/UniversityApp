@@ -25,7 +25,7 @@ const OrariStudentPage = lazy(() => import('@/pages/student/OrariPage'));
 
 // Pedagog pages
 const BallinaPedagogPage = lazy(() => import('@/pages/pedagog/BallinaPage'));
-const KursetPage = lazy(() => import('@/pages/pedagog/KursetPage'));
+const RaportetPedagogPage = lazy(() => import('@/pages/pedagog/KursetPage'));
 const OrariPedagogPage = lazy(() => import('@/pages/pedagog/OrariPage'));
 
 // Admin pages
@@ -74,7 +74,7 @@ const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <BallinaPedagogPage /> },
-      { path: 'kurset', element: <KursetPage /> },
+      { path: 'raportet', element: <RaportetPedagogPage /> },
       { path: 'orari', element: <OrariPedagogPage /> },
       { path: 'profili', element: <ProfilePage /> },
     ],

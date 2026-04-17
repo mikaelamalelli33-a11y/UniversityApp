@@ -15,13 +15,20 @@ import { ROUTES } from './routes';
 export const MENU_CONFIG = {
   student: [
     { key: ROUTES.STUDENT.ROOT, icon: <HomeOutlined />, label: 'Ballina' },
-    { key: ROUTES.STUDENT.NOTAT, icon: <FileTextOutlined />, label: 'Notat' },
-    { key: ROUTES.STUDENT.FATURA, icon: <EuroOutlined />, label: 'Faturat' },
+    {
+      key: 'student-raportet',
+      icon: <BarChartOutlined />,
+      label: 'Raportet',
+      children: [
+        { key: ROUTES.STUDENT.NOTAT, icon: <FileTextOutlined />, label: 'Notat' },
+        { key: ROUTES.STUDENT.FATURA, icon: <EuroOutlined />, label: 'Faturat' },
+      ],
+    },
     { key: ROUTES.STUDENT.ORARI, icon: <ScheduleOutlined />, label: 'Orari' },
   ],
   pedagog: [
     { key: ROUTES.PEDAGOG.ROOT, icon: <HomeOutlined />, label: 'Ballina' },
-    { key: ROUTES.PEDAGOG.KURSET, icon: <BookOutlined />, label: 'Kurset' },
+    { key: ROUTES.PEDAGOG.RAPORTET, icon: <BarChartOutlined />, label: 'Raportet' },
     { key: ROUTES.PEDAGOG.ORARI, icon: <ScheduleOutlined />, label: 'Orari' },
   ],
   admin: [

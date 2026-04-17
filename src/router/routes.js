@@ -21,7 +21,7 @@ export const ROUTES = {
 
   PEDAGOG: {
     ROOT: '/pedagog',
-    KURSET: '/pedagog/kurset',
+    RAPORTET: '/pedagog/raportet',
     ORARI: '/pedagog/orari',
     PROFILI: '/pedagog/profili',
   },
