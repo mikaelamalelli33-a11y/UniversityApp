@@ -1,15 +1,21 @@
 import { Suspense } from 'react';
-import { Layout, Menu, Button, Typography, Space, Avatar } from 'antd';
+import { Layout, Menu, Button, Typography, Space, Avatar, Tooltip } from 'antd';
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useUiStore } from '@/store/uiStore';
 import { useAuth } from '@/hooks/useAuth';
-import { ROUTES } from '@/router/routes';
+import { ROLE_DEFAULT_ROUTES, ROUTES } from '@/router/routes';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import NotificationBell from '@/components/common/NotificationBell';
 
 const { Sider, Header, Content } = Layout;
 const { Text } = Typography;
+
+const PROFILE_ROUTES = {
+  admin: ROUTES.ADMIN.PROFILI,
+  pedagog: ROUTES.PEDAGOG.PROFILI,
+  student: ROUTES.STUDENT.PROFILI,
+};
 
 /**
  * DashboardLayout — shared layout for all three portals (student, pedagog, admin).
@@ -48,13 +54,39 @@ export default function DashboardLayout({ menuItems }) {
     navigate(ROUTES.LOGIN);
   };
 
+  const handleBrandClick = () => {
+    navigate(ROLE_DEFAULT_ROUTES[user?.role] ?? ROUTES.LOGIN);
+  };
+
+  const handleProfileClick = () => {
+    const route = PROFILE_ROUTES[user?.role];
+    if (route) navigate(route);
+  };
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       {/* ── Sidebar ── */}
       <Sider collapsible collapsed={sidebarCollapsed} onCollapse={toggleSidebar} theme="dark">
-        <div style={{ padding: '16px', color: '#fff', fontWeight: 600, textAlign: 'center' }}>
-          {sidebarCollapsed ? 'UA' : 'UAMD'}
-        </div>
+        <Tooltip title="Ballina" placement="right">
+          <div
+            onClick={handleBrandClick}
+            style={{
+              padding: '16px',
+              color: '#fff',
+              fontWeight: 600,
+              textAlign: 'center',
+              cursor: 'pointer',
+              userSelect: 'none',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: 64,
+              overflow: 'hidden',
+            }}
+          >
+            {sidebarCollapsed ? <HomeIcon /> : 'UAMD'}
+          </div>
+        </Tooltip>
         <Menu
           theme="dark"
           mode="inline"
@@ -74,16 +106,27 @@ export default function DashboardLayout({ menuItems }) {
             alignItems: 'center',
             justifyContent: 'space-between',
             borderBottom: '1px solid #f0f0f0',
+            height: 64,
+            lineHeight: 'normal',
           }}
         >
           <Text strong style={{ fontSize: 16 }}>
             {pageTitle}
           </Text>
 
-          <Space>
+          <Space size="middle" align="center">
             <NotificationBell />
-            <Avatar src={user?.avatarUrl} icon={<UserOutlined />} />
-            <Text>{user?.name}</Text>
+            <Tooltip title="Profili">
+              <Space
+                size={8}
+                align="center"
+                onClick={handleProfileClick}
+                style={{ cursor: 'pointer' }}
+              >
+                <Avatar src={user?.avatarUrl} icon={<UserOutlined />} />
+                <Text>{user?.name}</Text>
+              </Space>
+            </Tooltip>
             <Button icon={<LogoutOutlined />} onClick={handleLogout} type="text">
               Dil
             </Button>
@@ -91,13 +134,36 @@ export default function DashboardLayout({ menuItems }) {
         </Header>
 
         {/* ── Content ── */}
-        <Content style={{ margin: '24px', padding: '24px', background: '#fff', borderRadius: 8 }}>
+        <Content
+          style={{
+            margin: '24px',
+            padding: '24px',
+            background: '#fff',
+            borderRadius: 8,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           {/* Suspense shows a spinner here (not full-page) while lazy page chunks load */}
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<LoadingSpinner fill />}>
             <Outlet />
           </Suspense>
         </Content>
       </Layout>
     </Layout>
+  );
+}
+
+// Home icon rendered when sidebar is collapsed — replaces "UA" abbreviation
+function HomeIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6h-6v6H4a1 1 0 01-1-1v-9.5z"
+        stroke="#fff"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

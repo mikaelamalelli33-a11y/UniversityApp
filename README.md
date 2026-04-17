@@ -50,6 +50,18 @@ npm run format       # Formato të gjithë kodin
 
 ---
 
+## URL-të publike
+
+| Mjedis    | Frontend (Vercel)            | Backend (Railway)                                     |
+| --------- | ---------------------------- | ----------------------------------------------------- |
+| Prodhimi  | https://university-app-lemon.vercel.app | https://university-api-production.up.railway.app      |
+| Lokal     | http://localhost:5173        | http://localhost:8000                                 |
+
+> Frontend-i, kur nuk është në `localhost`, konsumon automatikisht API-n publik në Railway.
+> Për të testuar FE-n kundrejt një API lokal, vendos `VITE_API_BASE_URL=http://127.0.0.1:8000` në `.env.local`.
+
+---
+
 ## Shënime të rëndësishme
 
 ### Gjuha

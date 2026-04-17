@@ -29,11 +29,14 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, user, navigate]);
 
-  // Show OAuth error passed via query param
+  // Show OAuth error passed via query param, then strip it from the URL
   useEffect(() => {
     const oauthError = searchParams.get('error');
-    if (oauthError) setError(OAUTH_ERRORS[oauthError] ?? 'Gabim gjatë hyrjes.');
-  }, [searchParams]);
+    if (oauthError) {
+      setError(OAUTH_ERRORS[oauthError] ?? 'Gabim gjatë hyrjes.');
+      navigate(ROUTES.LOGIN, { replace: true });
+    }
+  }, [searchParams, navigate]);
 
   const onFinish = async ({ email, password }) => {
     setLoading(true);
@@ -121,13 +124,12 @@ export default function LoginPage() {
           onClick={handleGoogleLogin}
           style={{ borderColor: '#4285f4', color: '#4285f4' }}
         >
-          Hyr me Google (Studentët)
+          Hyr me Google
         </Button>
 
         <div style={{ marginTop: 16, textAlign: 'center' }}>
           <Text type="secondary" style={{ fontSize: 12 }}>
-            Studentët hyjnë vetëm me llogarinë Google të universitetit (@students.uamd.edu.al).
-            Pedagogët dhe adminët hyjnë me email + fjalëkalim.
+            Mund të hyni me llogarinë tuaj Google të universitetit ose me email + fjalëkalim.
           </Text>
         </div>
       </Card>

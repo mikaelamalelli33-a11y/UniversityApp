@@ -8,10 +8,10 @@ import {
   ScheduleOutlined,
   EuroOutlined,
   BellOutlined,
-  LockOutlined,
 } from '@ant-design/icons';
 import { ROUTES } from './routes';
 
+// Profile (incl. change password) is reached via the header avatar/name — not via sidebar.
 export const MENU_CONFIG = {
   student: [
     { key: ROUTES.STUDENT.ROOT, icon: <HomeOutlined />, label: 'Ballina' },
@@ -23,7 +23,6 @@ export const MENU_CONFIG = {
     { key: ROUTES.PEDAGOG.ROOT, icon: <HomeOutlined />, label: 'Ballina' },
     { key: ROUTES.PEDAGOG.KURSET, icon: <BookOutlined />, label: 'Kurset' },
     { key: ROUTES.PEDAGOG.ORARI, icon: <ScheduleOutlined />, label: 'Orari' },
-    { key: ROUTES.PEDAGOG.PASSWORD, icon: <LockOutlined />, label: 'Fjalëkalimi' },
   ],
   admin: [
     { key: ROUTES.ADMIN.ROOT, icon: <HomeOutlined />, label: 'Ballina' },
@@ -32,6 +31,5 @@ export const MENU_CONFIG = {
     { key: ROUTES.ADMIN.LENDET, icon: <BookOutlined />, label: 'Lëndët' },
     { key: ROUTES.ADMIN.RAPORTET, icon: <BarChartOutlined />, label: 'Raportet' },
     { key: ROUTES.ADMIN.NJOFTIMET, icon: <BellOutlined />, label: 'Njoftimet' },
-    { key: ROUTES.ADMIN.PASSWORD, icon: <LockOutlined />, label: 'Fjalëkalimi' },
   ],
 };

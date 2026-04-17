@@ -16,13 +16,14 @@ export const ROUTES = {
     NOTAT: '/student/notat',
     FATURA: '/student/fatura',
     ORARI: '/student/orari',
+    PROFILI: '/student/profili',
   },
 
   PEDAGOG: {
     ROOT: '/pedagog',
     KURSET: '/pedagog/kurset',
     ORARI: '/pedagog/orari',
-    PASSWORD: '/pedagog/password',
+    PROFILI: '/pedagog/profili',
   },
 
   ADMIN: {
@@ -32,7 +33,7 @@ export const ROUTES = {
     LENDET: '/admin/lendet',
     RAPORTET: '/admin/raportet',
     NJOFTIMET: '/admin/njoftimet',
-    PASSWORD: '/admin/password',
+    PROFILI: '/admin/profili',
   },
 };
 

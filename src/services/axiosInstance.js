@@ -26,36 +26,55 @@ axiosInstance.interceptors.request.use(
 );
 
 // ─── Response interceptor ───────────────────────────────────────────────────
+// Global error handling: any API error surfaces as an antd notification using
+// the backend's `message` field, with a role-appropriate severity. Callers that
+// want to handle errors inline (e.g. login form, change password form) can pass
+// `{ skipErrorNotification: true }` in the axios config to opt out.
 axiosInstance.interceptors.response.use(
   // Unwrap data so callers get the payload directly
   (response) => response.data,
 
   async (error) => {
+    const status = error.response?.status;
+    const backendMessage = error.response?.data?.message;
+    const skipNotification = error.config?.skipErrorNotification === true;
+    const isLoginRequest = error.config?.url?.includes('/auth/login');
+
     // 401 — token expired or invalid, force logout
     // NOTE: Sanctum does not have refresh tokens. When the token expires (24h),
     // the user must log in again. If refresh tokens are added in the future,
     // implement them here.
-    if (error.response?.status === 401) {
+    // Skip redirect if this IS the login request (wrong credentials).
+    if (status === 401 && !isLoginRequest) {
       const { useAuthStore } = await import('@/store/authStore');
       useAuthStore.getState().logout();
       window.location.href = ROUTES.LOGIN;
       return Promise.reject(error);
     }
 
-    // 403 — not authorized for this action
-    if (error.response?.status === 403) {
-      notification.error({ message: 'Nuk keni leje për këtë veprim.' });
+    if (skipNotification) {
+      return Promise.reject(error);
     }
 
-    // 5xx — server error
-    if (error.response?.status >= 500) {
-      notification.error({ message: 'Gabim i serverit. Ju lutem provoni përsëri.' });
-    }
+    // Decide severity + fallback message
+    let type = 'error';
+    let fallback = 'Ndodhi një gabim. Ju lutem provoni përsëri.';
 
-    // Network error (no response)
     if (!error.response) {
-      notification.error({ message: 'Nuk ka lidhje me serverin.' });
+      fallback = 'Nuk ka lidhje me serverin.';
+    } else if (status === 403) {
+      fallback = 'Nuk keni leje për këtë veprim.';
+    } else if (status === 404) {
+      type = 'warning';
+      fallback = 'Burimi i kërkuar nuk u gjet.';
+    } else if (status === 422) {
+      type = 'warning';
+      fallback = 'Të dhënat nuk janë të vlefshme.';
+    } else if (status >= 500) {
+      fallback = 'Gabim i serverit. Ju lutem provoni përsëri.';
     }
+
+    notification[type]({ message: backendMessage ?? fallback });
 
     return Promise.reject(error);
   }
