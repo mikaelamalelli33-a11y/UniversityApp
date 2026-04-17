@@ -82,10 +82,8 @@ export default function DashboardLayout({ menuItems }) {
 
           <Space>
             <NotificationBell />
-            <Avatar icon={<UserOutlined />} />
-            <Text>
-              {user?.emri} {user?.mbiemri}
-            </Text>
+            <Avatar src={user?.avatarUrl} icon={<UserOutlined />} />
+            <Text>{user?.name}</Text>
             <Button icon={<LogoutOutlined />} onClick={handleLogout} type="text">
               Dil
             </Button>

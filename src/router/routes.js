@@ -3,6 +3,7 @@ import { ROLES } from '@/utils/constants';
 export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
+  AUTH_CALLBACK: '/auth/callback',
 
   PUBLIC: {
     ROOT: '/public',
@@ -21,6 +22,7 @@ export const ROUTES = {
     ROOT: '/pedagog',
     KURSET: '/pedagog/kurset',
     ORARI: '/pedagog/orari',
+    PASSWORD: '/pedagog/password',
   },
 
   ADMIN: {
@@ -30,6 +32,7 @@ export const ROUTES = {
     LENDET: '/admin/lendet',
     RAPORTET: '/admin/raportet',
     NJOFTIMET: '/admin/njoftimet',
+    PASSWORD: '/admin/password',
   },
 };
 

@@ -17,7 +17,7 @@ export default function BallinaPedagogPage() {
 
   return (
     <div>
-      <Title level={4}>Mirë se vini, {user?.emri}!</Title>
+      <Title level={4}>Mirë se vini, {user?.name}!</Title>
       <Text type="secondary">Portali i Pedagogut — UAMD</Text>
 
       <Row gutter={[16, 16]} style={{ marginTop: 24 }}>

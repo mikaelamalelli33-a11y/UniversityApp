@@ -18,7 +18,7 @@ export default function BallinaAdminPage() {
 
   return (
     <div>
-      <Title level={4}>Mirë se vini, {user?.emri}!</Title>
+      <Title level={4}>Mirë se vini, {user?.name}!</Title>
       <Text type="secondary">Paneli i Administratorit — UAMD</Text>
 
       <Row gutter={[16, 16]} style={{ marginTop: 24 }}>

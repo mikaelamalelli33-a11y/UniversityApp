@@ -12,6 +12,10 @@ import { ROLES } from '@/utils/constants';
 
 // Auth
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
+const OAuthCallbackPage = lazy(() => import('@/pages/auth/OAuthCallbackPage'));
+
+// Shared
+const ChangePasswordPage = lazy(() => import('@/pages/shared/ChangePasswordPage'));
 
 // Student pages
 const BallinaStudentPage = lazy(() => import('@/pages/student/BallinaPage'));
@@ -33,8 +37,9 @@ const RaportetPage = lazy(() => import('@/pages/admin/RaportetPage'));
 const NjoftimetPage = lazy(() => import('@/pages/admin/NjoftimetPage'));
 
 const router = createBrowserRouter([
-  { path: ROUTES.HOME, element: <Navigate to={ROUTES.STUDENT.ROOT} replace /> },
+  { path: ROUTES.HOME, element: <Navigate to={ROUTES.LOGIN} replace /> },
   { path: ROUTES.LOGIN, element: <LoginPage /> },
+  { path: ROUTES.AUTH_CALLBACK, element: <OAuthCallbackPage /> },
 
   {
     path: ROUTES.PUBLIC.ROOT,
@@ -70,6 +75,7 @@ const router = createBrowserRouter([
       { index: true, element: <BallinaPedagogPage /> },
       { path: 'kurset', element: <KursetPage /> },
       { path: 'orari', element: <OrariPedagogPage /> },
+      { path: 'password', element: <ChangePasswordPage /> },
     ],
   },
 
@@ -88,6 +94,7 @@ const router = createBrowserRouter([
       { path: 'lendet', element: <LendetPage /> },
       { path: 'raportet', element: <RaportetPage /> },
       { path: 'njoftimet', element: <NjoftimetPage /> },
+      { path: 'password', element: <ChangePasswordPage /> },
     ],
   },
 

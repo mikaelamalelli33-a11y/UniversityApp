@@ -5,43 +5,38 @@ import { authService } from '@/services/authService';
 export const useAuthStore = create((set, get) => ({
   user: null,
   accessToken: null,
-  refreshToken: null,
   isAuthenticated: false,
   isLoading: false,
 
   login: async (credentials) => {
     set({ isLoading: true });
-    const data = await authService.login(credentials);
-    storage.setToken(data.access_token);
-    storage.setRefreshToken(data.refresh_token);
-    set({
-      user: data.user,
-      accessToken: data.access_token,
-      refreshToken: data.refresh_token,
-      isAuthenticated: true,
-      isLoading: false,
-    });
-    return data.user;
+    // Backend: { data: { user: {...}, token: "..." }, message, status }
+    const res = await authService.login(credentials);
+    const { user, token } = res.data;
+    storage.setToken(token);
+    set({ user, accessToken: token, isAuthenticated: true, isLoading: false });
+    return user;
   },
 
-  logout: () => {
+  // Called by OAuthCallbackPage after token arrives in URL
+  loginWithToken: async (token) => {
+    storage.setToken(token);
+    const res = await authService.me();
+    const user = res.data;
+    set({ user, accessToken: token, isAuthenticated: true, isLoading: false });
+    return user;
+  },
+
+  logout: async () => {
+    try {
+      await authService.logout();
+    } catch {
+      // ignore — token may already be invalid
+    }
     storage.clearAllTokens();
-    set({
-      user: null,
-      accessToken: null,
-      refreshToken: null,
-      isAuthenticated: false,
-      isLoading: false,
-    });
+    set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
   },
 
-  setTokens: (accessToken, refreshToken) => {
-    storage.setToken(accessToken);
-    if (refreshToken) storage.setRefreshToken(refreshToken);
-    set({ accessToken, ...(refreshToken && { refreshToken }) });
-  },
-
-  // Called on app start — reads token from storage, validates with API
   initializeAuth: async () => {
     const token = storage.getToken();
     if (!token) {
@@ -50,8 +45,8 @@ export const useAuthStore = create((set, get) => ({
     }
     set({ isLoading: true });
     try {
-      const user = await authService.me();
-      set({ user, accessToken: token, isAuthenticated: true, isLoading: false });
+      const res = await authService.me();
+      set({ user: res.data, accessToken: token, isAuthenticated: true, isLoading: false });
     } catch {
       get().logout();
       set({ isLoading: false });

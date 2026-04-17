@@ -26,7 +26,7 @@ export default function BallinaStudentPage() {
 
   return (
     <div>
-      <Title level={4}>Mirë se vini, {user?.emri}!</Title>
+      <Title level={4}>Mirë se vini, {user?.name}!</Title>
       <Text type="secondary">Portali Studentor — UAMD</Text>
 
       {unpaidCount > 0 && (

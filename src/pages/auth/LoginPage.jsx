@@ -1,49 +1,56 @@
-import { useState } from 'react';
-import { Button, Space, Card, Typography, Alert } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/store/authStore';
-import { ROLE_DEFAULT_ROUTES } from '@/router/routes';
-import { ROLES } from '@/utils/constants';
-import axiosInstance from '@/services/axiosInstance';
+import { useEffect, useState } from 'react';
+import { Alert, Button, Card, Divider, Form, Input, Typography } from 'antd';
+import { GoogleOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { ROLE_DEFAULT_ROUTES, ROUTES } from '@/router/routes';
 
 const { Title, Text } = Typography;
 
-// DEV ONLY — simulates login per role without a real API call.
-// Replace this entire file once the real login form is built.
-const DEV_USERS = {
-  [ROLES.STUDENT]: { id: 1, emri: 'Andi', mbiemri: 'Marku', role: ROLES.STUDENT },
-  [ROLES.PEDAGOG]: { id: 2, emri: 'Prof. Genta', mbiemri: 'Hoxha', role: ROLES.PEDAGOG },
-  [ROLES.ADMIN]: { id: 3, emri: 'Admin', mbiemri: 'UAMD', role: ROLES.ADMIN },
+const OAUTH_ERRORS = {
+  oauth_failed: 'Hyrja me Google dështoi. Ju lutem provoni përsëri.',
+  oauth_unknown_email: 'Email-i juaj Google nuk është i regjistruar në sistem.',
 };
+
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL || 'https://university-api-production.up.railway.app';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [apiStatus, setApiStatus] = useState(null);
+  const [searchParams] = useSearchParams();
+  const { login, isAuthenticated, user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const simulateLogin = (role) => {
-    useAuthStore.setState({
-      user: DEV_USERS[role],
-      accessToken: 'dev-token',
-      isAuthenticated: true,
-    });
-    navigate(ROLE_DEFAULT_ROUTES[role]);
-  };
+  // If already authenticated, redirect to role default
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      navigate(ROLE_DEFAULT_ROUTES[user.role] ?? ROUTES.STUDENT.ROOT, { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
 
-  const testApi = async () => {
+  // Show OAuth error passed via query param
+  useEffect(() => {
+    const oauthError = searchParams.get('error');
+    if (oauthError) setError(OAUTH_ERRORS[oauthError] ?? 'Gabim gjatë hyrjes.');
+  }, [searchParams]);
+
+  const onFinish = async ({ email, password }) => {
     setLoading(true);
-    setApiStatus(null);
+    setError(null);
     try {
-      const res = await axiosInstance.get('/api/v1/faculties');
-      setApiStatus({
-        type: 'success',
-        message: `✅ API works — ${res.data.length} faculties returned`,
-      });
+      const loggedInUser = await login({ email, password });
+      navigate(ROLE_DEFAULT_ROUTES[loggedInUser.role] ?? ROUTES.STUDENT.ROOT, { replace: true });
     } catch (err) {
-      setApiStatus({ type: 'error', message: `❌ ${err.response?.data?.message || err.message}` });
+      const msg = err?.response?.data?.message;
+      setError(msg ?? 'Email ose fjalëkalimi i gabuar.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = `${API_BASE}/api/v1/auth/google/redirect`;
   };
 
   return (
@@ -52,28 +59,77 @@ export default function LoginPage() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        height: '100vh',
+        minHeight: '100vh',
         background: '#f0f2f5',
+        padding: 16,
       }}
     >
-      <Card style={{ width: 360, textAlign: 'center' }}>
-        <Title level={3}>UAMD</Title>
-        <Text type="secondary">Dev login — zgjedh rolin për testim</Text>
-        <Space direction="vertical" style={{ width: '100%', marginTop: 24 }}>
-          <Button block type="primary" onClick={() => simulateLogin(ROLES.STUDENT)}>
-            Hyr si Student
-          </Button>
-          <Button block onClick={() => simulateLogin(ROLES.PEDAGOG)}>
-            Hyr si Pedagog
-          </Button>
-          <Button block danger onClick={() => simulateLogin(ROLES.ADMIN)}>
-            Hyr si Admin
-          </Button>
-          <Button block type="dashed" loading={loading} onClick={testApi}>
-            Test API connection
-          </Button>
-          {apiStatus && <Alert message={apiStatus.message} type={apiStatus.type} showIcon />}
-        </Space>
+      <Card style={{ width: 400 }}>
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <Title level={3} style={{ marginBottom: 4 }}>
+            UAMD
+          </Title>
+          <Text type="secondary">Universiteti Aleksander Moisiu Durrës</Text>
+        </div>
+
+        {error && (
+          <Alert
+            message={error}
+            type="error"
+            showIcon
+            closable
+            onClose={() => setError(null)}
+            style={{ marginBottom: 16 }}
+          />
+        )}
+
+        <Form layout="vertical" onFinish={onFinish} requiredMark={false}>
+          <Form.Item
+            name="email"
+            rules={[
+              { required: true, message: 'Email-i është i detyrueshëm.' },
+              { type: 'email', message: 'Formati i email-it nuk është i saktë.' },
+            ]}
+          >
+            <Input prefix={<MailOutlined />} placeholder="Email" size="large" />
+          </Form.Item>
+
+          <Form.Item
+            name="password"
+            rules={[{ required: true, message: 'Fjalëkalimi është i detyrueshëm.' }]}
+          >
+            <Input.Password prefix={<LockOutlined />} placeholder="Fjalëkalimi" size="large" />
+          </Form.Item>
+
+          <Form.Item style={{ marginBottom: 8 }}>
+            <Button type="primary" htmlType="submit" size="large" block loading={loading}>
+              Hyr
+            </Button>
+          </Form.Item>
+        </Form>
+
+        <Divider plain>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            OSE
+          </Text>
+        </Divider>
+
+        <Button
+          size="large"
+          block
+          icon={<GoogleOutlined />}
+          onClick={handleGoogleLogin}
+          style={{ borderColor: '#4285f4', color: '#4285f4' }}
+        >
+          Hyr me Google (Studentët)
+        </Button>
+
+        <div style={{ marginTop: 16, textAlign: 'center' }}>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            Studentët hyjnë vetëm me llogarinë Google të universitetit (@students.uamd.edu.al).
+            Pedagogët dhe adminët hyjnë me email + fjalëkalim.
+          </Text>
+        </div>
       </Card>
     </div>
   );
