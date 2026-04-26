@@ -15,15 +15,25 @@ export default function NotificationBell() {
 
   // Load existing notifications once on mount
   useEffect(() => {
+    let cancelled = false;
     njoftimService
       .getAll()
-      .then((res) => setNotifications(res.data ?? []))
+      .then((res) => {
+        if (!cancelled) setNotifications(res.data ?? []);
+      })
       .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  // SSE: when the server pushes a new notification, prepend it to the list
+  // SSE: when the server pushes a new notification, prepend it to the list.
+  // Dedupe by id so reconnects/replays don't create duplicate entries.
   useNotificationStream((newNotification) => {
-    setNotifications((prev) => [newNotification, ...prev]);
+    setNotifications((prev) => {
+      if (prev.some((n) => n.id === newNotification.id)) return prev;
+      return [newNotification, ...prev];
+    });
   });
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
