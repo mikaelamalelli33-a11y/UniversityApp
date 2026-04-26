@@ -29,7 +29,7 @@ export const useAuthStore = create((set, get) => ({
       return user;
     } catch (error) {
       // Token validation failed — clear it from storage to prevent loop on reload
-      storage.clearToken();
+      storage.removeToken();
       throw error;
     }
   },
