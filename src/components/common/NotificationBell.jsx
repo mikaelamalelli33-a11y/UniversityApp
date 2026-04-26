@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Badge, Button, Dropdown, Empty, List, Tag, Typography } from 'antd';
 import { BellOutlined, CheckOutlined } from '@ant-design/icons';
 import { njoftimService } from '@/services/njoftimService';
+import { useNotificationStream } from '@/hooks/useNotificationStream';
 
 const { Text } = Typography;
 
@@ -12,20 +13,18 @@ export default function NotificationBell() {
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
 
-  const fetchAll = async () => {
-    try {
-      const res = await njoftimService.getAll();
-      setNotifications(res.data ?? []);
-    } catch {
-      // silent fail
-    }
-  };
-
+  // Load existing notifications once on mount
   useEffect(() => {
-    fetchAll();
-    const interval = setInterval(fetchAll, 60_000);
-    return () => clearInterval(interval);
+    njoftimService
+      .getAll()
+      .then((res) => setNotifications(res.data ?? []))
+      .catch(() => {});
   }, []);
+
+  // SSE: when the server pushes a new notification, prepend it to the list
+  useNotificationStream((newNotification) => {
+    setNotifications((prev) => [newNotification, ...prev]);
+  });
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
