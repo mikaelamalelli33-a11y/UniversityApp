@@ -46,8 +46,13 @@ axiosInstance.interceptors.response.use(
     // NOTE: Sanctum does not have refresh tokens. When the token expires (24h),
     // the user must log in again. If refresh tokens are added in the future,
     // implement them here.
-    // Skip redirect if this IS the login request (wrong credentials).
-    if (status === 401 && !isLoginRequest) {
+    // Skip redirect if this IS the login request (wrong credentials), or the
+    // OAuth callback's /auth/me probe (the page handles its own error UI).
+    const isMeRequest = error.config?.url?.includes('/auth/me');
+    if (status === 401 && !isLoginRequest && !isMeRequest) {
+      // Clear storage SYNCHRONOUSLY before navigating, otherwise the next page
+      // load may still see the stale token and trigger another 401 → loop.
+      storage.clearAllTokens();
       const { useAuthStore } = await import('@/store/authStore');
       useAuthStore.getState().logout();
       window.location.href = ROUTES.LOGIN;

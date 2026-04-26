@@ -39,6 +39,7 @@ export default function LoginPage() {
   }, [searchParams, navigate]);
 
   const onFinish = async ({ email, password }) => {
+    if (loading) return; // guard against double-submit (Enter key + click)
     setLoading(true);
     setError(null);
     try {

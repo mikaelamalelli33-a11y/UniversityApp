@@ -10,12 +10,17 @@ export const useAuthStore = create((set, get) => ({
 
   login: async (credentials) => {
     set({ isLoading: true });
-    // Backend: { data: { user: {...}, token: "..." }, message, status }
-    const res = await authService.login(credentials);
-    const { user, token } = res.data;
-    storage.setToken(token);
-    set({ user, accessToken: token, isAuthenticated: true, isLoading: false });
-    return user;
+    try {
+      // Backend: { data: { user: {...}, token: "..." }, message, status }
+      const res = await authService.login(credentials);
+      const { user, token } = res.data;
+      storage.setToken(token);
+      set({ user, accessToken: token, isAuthenticated: true, isLoading: false });
+      return user;
+    } catch (error) {
+      set({ isLoading: false });
+      throw error;
+    }
   },
 
   // Called by OAuthCallbackPage after token arrives in URL
