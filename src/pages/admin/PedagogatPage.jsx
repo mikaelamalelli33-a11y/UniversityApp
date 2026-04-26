@@ -30,11 +30,21 @@ export default function PedagogatPage() {
   usePageTitle('Pedagogët');
   const [search, setSearch] = useState('');
   const [depFilter, setDepFilter] = useState(null);
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(15);
+  const [sortBy, setSortBy] = useState(null);
+  const [sortOrder, setSortOrder] = useState('asc');
 
-  const { data: pedData, loading } = useApi(() => adminService.getPedagogues(), []);
+  const fieldToBackend = { name: 'PED_EMER', email: 'PED_MBIEMER' };
+
+  const { data: pedData, loading } = useApi(
+    () => adminService.getPedagogues({ page, perPage, sortBy, sortOrder }),
+    [page, perPage, sortBy, sortOrder]
+  );
   const { data: depData } = useApi(() => adminService.getDepartments(), []);
 
   const pedagogues = pedData?.data ?? [];
+  const pagination = pedData?.pagination ?? {};
   const departments = depData?.data ?? [];
 
   const filtered = pedagogues.filter((p) => {
@@ -45,6 +55,17 @@ export default function PedagogatPage() {
     const matchDep = depFilter ? p.departmentId === depFilter : true;
     return matchSearch && matchDep;
   });
+
+  const handleTableChange = (_, __, sorter) => {
+    setPage(1);
+    if (sorter.field) {
+      setSortBy(fieldToBackend[sorter.field]);
+      setSortOrder(sorter.order === 'descend' ? 'desc' : 'asc');
+    } else {
+      setSortBy(null);
+      setSortOrder('asc');
+    }
+  };
 
   return (
     <div>
@@ -69,7 +90,16 @@ export default function PedagogatPage() {
         dataSource={filtered}
         rowKey="id"
         loading={loading}
-        pagination={{ pageSize: 15 }}
+        pagination={{
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: pagination.total,
+          onChange: (p, ps) => {
+            setPage(p);
+            setPerPage(ps);
+          },
+        }}
+        onChange={handleTableChange}
       />
     </div>
   );
