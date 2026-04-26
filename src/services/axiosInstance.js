@@ -8,6 +8,8 @@ const axiosInstance = axios.create({
   timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 10000,
   headers: {
     'Content-Type': 'application/json',
+    // Tell Laravel to render error responses as JSON (e.g. 401 instead of HTML 500)
+    Accept: 'application/json',
     // Tell backend to return error messages in Albanian
     'Accept-Language': 'sq',
   },
