@@ -20,11 +20,18 @@ export const useAuthStore = create((set, get) => ({
 
   // Called by OAuthCallbackPage after token arrives in URL
   loginWithToken: async (token) => {
+    // Store token temporarily so axios interceptor can use it for /auth/me request
     storage.setToken(token);
-    const res = await authService.me();
-    const user = res.data;
-    set({ user, accessToken: token, isAuthenticated: true, isLoading: false });
-    return user;
+    try {
+      const res = await authService.me();
+      const user = res.data;
+      set({ user, accessToken: token, isAuthenticated: true, isLoading: false });
+      return user;
+    } catch (error) {
+      // Token validation failed — clear it from storage to prevent loop on reload
+      storage.clearToken();
+      throw error;
+    }
   },
 
   logout: async () => {
