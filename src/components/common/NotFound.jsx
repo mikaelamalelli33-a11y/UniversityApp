@@ -11,7 +11,7 @@ export default function NotFound() {
       subTitle="Faqja që kërkuat nuk u gjet."
       extra={
         <Button type="primary" onClick={() => navigate('/')}>
-          Kthehu në fillim
+          Kthehu ne fillim.
         </Button>
       }
     />

@@ -7,7 +7,7 @@ export default function OrariStudentPage() {
 
   return (
     <Result
-      icon={<ScheduleOutlined style={{ color: '#1677ff' }} />}
+      icon={<ScheduleOutlined style={{ color: '#FFD300' }} />}
       title="Orari juaj"
       subTitle="Funksionaliteti i orarit është duke u implementuar. Do të jetë i disponueshëm së shpejti."
     />

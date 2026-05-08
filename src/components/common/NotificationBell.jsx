@@ -6,8 +6,8 @@ import { useNotificationStream } from '@/hooks/useNotificationStream';
 
 const { Text } = Typography;
 
-const typeColor = { info: 'blue', sukses: 'green', paralajmerim: 'orange' };
-const typeLabel = { info: 'Info', sukses: 'Sukses', paralajmerim: 'Paralajmërim' };
+const typeColor = { info: 'blue', sukses: 'green', paralajmërim: 'orange' };
+const typeLabel = { info: 'Info', sukses: 'Sukses', paralajmërim: 'Paralajmërim' };
 
 export default function NotificationBell() {
   const [notifications, setNotifications] = useState([]);

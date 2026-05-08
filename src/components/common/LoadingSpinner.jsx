@@ -22,6 +22,8 @@ export default function LoadingSpinner({ fullPage = false, fill = false, tip, si
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
+          flex: 1,
+          minHeight: '100vh',
           height: '100vh',
           width: '100%',
         }}
