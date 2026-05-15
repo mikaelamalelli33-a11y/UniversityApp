@@ -7,12 +7,6 @@ import { adminService } from '@/services/adminService';
 const { Title } = Typography;
 const { Search } = Input;
 
-const columns = [
-  { title: 'Kodi', dataIndex: 'code', key: 'code', width: 100, sorter: true },
-  { title: 'Emri', dataIndex: 'name', key: 'name', sorter: true },
-  { title: 'ID Departamenti', dataIndex: 'departmentId', key: 'departmentId', width: 160 },
-];
-
 export default function LendetPage() {
   usePageTitle('Lëndët');
   const [search, setSearch] = useState('');
@@ -33,6 +27,17 @@ export default function LendetPage() {
   const courses = crsData?.data ?? [];
   const pagination = crsData?.pagination ?? {};
   const departments = depData?.data ?? [];
+  const depMap = Object.fromEntries(departments.map((d) => [d.id, d.name]));
+
+  const columns = [
+    { title: 'Kodi', dataIndex: 'code', key: 'code', width: 100, sorter: true },
+    { title: 'Emri', dataIndex: 'name', key: 'name', sorter: true },
+    {
+      title: 'Departamenti',
+      key: 'departmentId',
+      render: (_, r) => depMap[r.departmentId] ?? '—',
+    },
+  ];
 
   const filtered = courses.filter((c) => {
     const matchSearch =

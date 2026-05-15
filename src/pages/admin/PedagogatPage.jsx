@@ -7,25 +7,6 @@ import { adminService } from '@/services/adminService';
 const { Title } = Typography;
 const { Search } = Input;
 
-const columns = [
-  {
-    title: 'Emri',
-    key: 'name',
-    render: (_, r) => `${r.title ? r.title + ' ' : ''}${r.firstName} ${r.lastName}`,
-  },
-  { title: 'Email', dataIndex: 'email', key: 'email' },
-  {
-    title: 'Gjinia',
-    dataIndex: 'gender',
-    key: 'gender',
-    render: (val) => (
-      <Tag color={val === 'M' ? 'blue' : 'pink'}>{val === 'M' ? 'Mashkull' : 'Femër'}</Tag>
-    ),
-    width: 100,
-  },
-  { title: 'ID Departamenti', dataIndex: 'departmentId', key: 'departmentId', width: 160 },
-];
-
 export default function PedagogatPage() {
   usePageTitle('Pedagogët');
   const [search, setSearch] = useState('');
@@ -46,6 +27,30 @@ export default function PedagogatPage() {
   const pedagogues = pedData?.data ?? [];
   const pagination = pedData?.pagination ?? {};
   const departments = depData?.data ?? [];
+  const depMap = Object.fromEntries(departments.map((d) => [d.id, d.name]));
+
+  const columns = [
+    {
+      title: 'Emri',
+      key: 'name',
+      render: (_, r) => `${r.title ? r.title + ' ' : ''}${r.firstName} ${r.lastName}`,
+    },
+    { title: 'Email', dataIndex: 'email', key: 'email' },
+    {
+      title: 'Gjinia',
+      dataIndex: 'gender',
+      key: 'gender',
+      render: (val) => (
+        <Tag color={val === 'M' ? 'blue' : 'pink'}>{val === 'M' ? 'Mashkull' : 'Femër'}</Tag>
+      ),
+      width: 100,
+    },
+    {
+      title: 'Departamenti',
+      key: 'departmentId',
+      render: (_, r) => depMap[r.departmentId] ?? '—',
+    },
+  ];
 
   const filtered = pedagogues.filter((p) => {
     const fullName = `${p.firstName} ${p.lastName}`.toLowerCase();
